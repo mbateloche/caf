@@ -1,0 +1,20 @@
+- Definir dois data frames, um CnAF/VNI pré-IOT outro CNAF/VNI pós-IOT;
+- Idade, sexo, altura, etinia, internação hospitalar-início dos sintomas, internação em UTI-início dos sintomas, SAPS, comorbidades, IMC -> Realizar avaliações para os data frames gerais e para cada grupo separadamente.
+
+- CnAF/VNI pré-IOT:
+	- Dados gerais citados acima;
+	- Esses grupos são diferentes em alguma das características citadas acima?
+	- Há diferença na taxa de intubação? (CnAF vs VNI vs CnAF+VNI)
+	- Há diferença no tempo até intubação?
+	- Há diferença no tempo de internação em UTI ou tempo de internação hospitalar?
+	- É possível avaliar clusters de pacientes de acordo com suas respectivas UTI's?
+	- Há algum modelo de regressão que prediz de forma satisfatória a taxa de intubação desses pacientes? (considerar modelos de regressão múltipla apenas com covariáveis estatísticamente significativas)
+
+- CnAF/VNI pós-IOT:
+	- Considerar os mesmos itens citados acima, definir falha de extubação como necessidade de reintubação em até 48hs após extubação;
+	- Comparar grupos com necessidade de reintubação tardia (> 48hs)
+	- Comparar grupos quanto à causa da reintubação;
+	- ROX índex;
+	- Modelos de regressão múltipla;
+	- Clusters;
+	- ...
