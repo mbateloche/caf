@@ -1,0 +1,4 @@
+"0","library(tidyverse)"
+"0","library(readxl)"
+"0","library(skimr)"
+"0","df <- read_excel('../epicov_inicial.xlsx')"

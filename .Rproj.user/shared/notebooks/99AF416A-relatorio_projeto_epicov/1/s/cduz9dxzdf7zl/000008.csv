@@ -1,0 +1,4 @@
+"0","ggplot(data=df, aes(x=Sexo, y= (..count..)/sum(..count..)*100, fill=Sexo)) + "
+"0","  geom_bar() +"
+"0","  ggtitle(""Distribuição de sexo entre os pacientes"") +"
+"0","  labs(y=""Quantidade de pacientes (%)"")"
