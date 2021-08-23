@@ -1,0 +1,52 @@
+---
+title: "epicov_pre_iot"
+author: "Matheus"
+date: "23/08/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r #Definindo os data frames}
+library(tidyverse)
+library(readxl)
+library(skimr)
+df <- read_excel("../epicov_inicial.xlsx")
+## Definindo o data frame apenas com paciente que usaram VNI e/ou CNAF pré-IOT
+df_pre <- filter(df, `Usou VNI pre IOT?` == "Yes" | `Usou CNAF pre IOT?` == "Yes")
+## Data frame apenas com paciente que não usaram VNI/CNAF pré-IOT
+df_npre <- filter(df, `Usou VNI pre IOT?` == "No" & `Usou CNAF pre IOT?` == "No")
+## Data total com coluna de grupos
+df_pre$Grupo <- c("Int")
+df_npre$Grupo <- c("Controle")
+df_pret <- rbind(df_pre, df_npre)
+```
+
+## Análise descritiva/exploratória
+
+### Idade grupo CNAF/VNI
+```{r #Análise exploratória - Idade}
+as.data.frame(skim(df_pre$Idade))
+```
+### Idade grupo controle
+```{r}
+as.data.frame(skim(df_npre$Idade))
+```
+
+### Teste de normalidade
+```{r}
+#Grupo Intervenção
+shapiro.test(df_pre$Idade)
+shapiro.test(df_npre$Idade)
+```
+#### Concluímos que ambas as amostras possuem distribuição não-paramétrica.
+
+### Comparação Idade
+```{r}
+ggplot(df_pret, aes(Idade, fill=Grupo)) +
+  geom_density(alpha=0.2)
+wilcox.test(df_pre$Idade, df_npre$Idade)
+```
+#### Conclusão: Não há diferença entre ambos os grupos.
