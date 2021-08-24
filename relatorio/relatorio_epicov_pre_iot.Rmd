@@ -9,7 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r #Definindo os data frames}
+# Projeto EPICOV - CNAF/VNI
+
+```{r #Definindo os data frames, include=FALSE}
 library(tidyverse)
 library(readxl)
 library(skimr)
@@ -30,6 +32,7 @@ df_pret <- rbind(df_pre, df_npre)
 ```{r #Análise exploratória - Idade}
 as.data.frame(skim(df_pre$Idade))
 ```
+
 ### Idade grupo controle
 ```{r}
 as.data.frame(skim(df_npre$Idade))
@@ -50,3 +53,118 @@ ggplot(df_pret, aes(Idade, fill=Grupo)) +
 wilcox.test(df_pre$Idade, df_npre$Idade)
 ```
 #### Conclusão: Não há diferença entre ambos os grupos.
+
+### Comparação - Sexo
+
+#### Sexo - grupo intervenção
+
+```{r}
+as.data.frame(skim(df_pre$Sexo))
+table(df_pre$Sexo)
+prop.table(table(df_pre$Sexo))
+ggplot(data=df_pre, aes(x=Sexo, y=(..count..)*100/sum(..count..), fill=Sexo))+
+  geom_bar()
+```
+
+#### Sexo- grupo controle
+
+```{r}
+as.data.frame(skim(df_npre$Sexo))
+table(df_npre$Sexo)
+prop.table(table(df_npre$Sexo))
+ggplot(data=df_npre, aes(x=Sexo, y=(..count..)*100/sum(..count..), fill=Sexo))+
+  geom_bar()
+```
+#### Comparação - Sexo
+
+```{r}
+t1 <- select(df_pre, Sexo, Grupo)
+t1
+t2 <- select(df_npre, Sexo, Grupo)
+t2
+t3 <- rbind(t1, t2)
+chisq.test(table(t3))
+```
+
+#### Não observamos diferença estatísticamente significativa entre ambos os grupos, porém, o valor de "p" quase atinge o limite.
+
+### Comparação IMC
+
+#### IMC - Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(df_pre$IMC))
+ggplot(data=df_pre, aes(x=IMC))+
+  geom_density()
+```
+
+#### IMC - Grupo controle
+```{r}
+as.data.frame(skim(df_npre$IMC))
+ggplot(data=df_npre, aes(x=IMC))+
+  geom_density()
+```
+
+#### Comparação
+```{r}
+ggplot(data=df_pret, aes(x=IMC, fill=Grupo)) +
+  geom_density(alpha=0.2)
+shapiro.test(df_pre$IMC)
+shapiro.test(df_npre$IMC)
+wilcox.test(df_pre$IMC, df_npre$IMC)
+```
+
+#### Ambos os grupos possuem distribuição não-paramétrica. Conclusão: Diferença estatísticamente significativa?!
+
+### Comparação início dos sintomas - internação hospiptalar
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(df_pre$`Data do início dos sintomas`))
+as.data.frame(skim(df_pre$`Data de admissão hospitalar no HC`))
+mean(difftime(df_pre$`Data de admissão hospitalar no HC`, df_pre$`Data do início dos sintomas`, units = "days"))
+```
+
+#### Grupo controle
+```{r}
+as.data.frame(skim(df_npre$`Data do início dos sintomas`))
+as.data.frame(skim(df_npre$`Data de admissão hospitalar no HC`))
+mean(difftime(df_npre$`Data de admissão hospitalar no HC`, df_npre$`Data do início dos sintomas`, units = "days"))
+```
+
+
+### Início dos sintomas - Internação UTI
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(df_pre$`Data do início dos sintomas`))
+as.data.frame(skim(df_pre$`Data de admissão UTI`))
+mean(difftime(df_pre$`Data de admissão UTI`, df_pre$`Data do início dos sintomas`, units = "days"))
+```
+
+#### Grupo controle
+```{r}
+as.data.frame(skim(df_npre$`Data do início dos sintomas`))
+as.data.frame(skim(df_npre$`Data de admissão UTI`))
+mean(difftime(df_npre$`Data de admissão UTI`, df_npre$`Data do início dos sintomas`, units = "days"))
+```
+
+### Internação hospitalar - internação UTI
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(df_pre$`Data de admissão hospitalar no HC`))
+as.data.frame(skim(df_pre$`Data de admissão UTI`))
+mean(difftime(df_pre$`Data de admissão UTI`, df_pre$`Data de admissão hospitalar no HC`, units = "days"))
+```
+
+#### Grupo controle
+
+```{r}
+as.data.frame(skim(df_npre$`Data de admissão hospitalar no HC`))
+as.data.frame(skim(df_npre$`Data de admissão UTI`))
+mean(difftime(df_npre$`Data de admissão UTI`, df_npre$`Data de admissão hospitalar no HC`, units = "days"))
+```
