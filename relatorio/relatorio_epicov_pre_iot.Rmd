@@ -20,25 +20,30 @@ df <- read_excel("../epicov_inicial.xlsx")
 df_pre <- filter(df, `Usou VNI pre IOT?` == "Yes" | `Usou CNAF pre IOT?` == "Yes")
 ## Data frame apenas com paciente que não usaram VNI/CNAF pré-IOT
 df_npre <- filter(df, `Usou VNI pre IOT?` == "No" & `Usou CNAF pre IOT?` == "No")
-## Data total com coluna de grupos
+df_nnpre <- filter(df, `Usou VNI pre IOT?` == "No" & `Usou CNAF pre IOT?` == "No" & `Suporte de O2 na chegada na UTI` != "VM")
+## Data frame total com coluna de grupos
 df_pre$Grupo <- c("Int")
 df_npre$Grupo <- c("Controle")
-df_pret <- rbind(df_pre, df_npre)
+df_nnpre$Grupo <- c("Controle") # Grupo controle que não chegou intubado à UTI
+df_pret <- rbind(df_pre, df_npre) # Data frame com todos os paciente com coluna "Grupo"
+df_prett <- rbind(df_pre, df_nnpre) # Data frame com todos os paciente que não chegaram à UTI intubados com coluna "Grupo"
 ```
 
 ## Análise descritiva/exploratória
 
-### Idade grupo CNAF/VNI
+### Comparação idade
+
+#### Idade grupo CNAF/VNI
 ```{r #Análise exploratória - Idade}
 as.data.frame(skim(df_pre$Idade))
 ```
 
-### Idade grupo controle
+#### Idade grupo controle
 ```{r}
 as.data.frame(skim(df_npre$Idade))
 ```
 
-### Teste de normalidade
+#### Teste de normalidade
 ```{r}
 #Grupo Intervenção
 shapiro.test(df_pre$Idade)
@@ -46,7 +51,7 @@ shapiro.test(df_npre$Idade)
 ```
 #### Concluímos que ambas as amostras possuem distribuição não-paramétrica.
 
-### Comparação Idade
+#### Comparação Idade
 ```{r}
 ggplot(df_pret, aes(Idade, fill=Grupo)) +
   geom_density(alpha=0.2)
@@ -167,4 +172,64 @@ mean(difftime(df_pre$`Data de admissão UTI`, df_pre$`Data de admissão hospital
 as.data.frame(skim(df_npre$`Data de admissão hospitalar no HC`))
 as.data.frame(skim(df_npre$`Data de admissão UTI`))
 mean(difftime(df_npre$`Data de admissão UTI`, df_npre$`Data de admissão hospitalar no HC`, units = "days"))
+```
+
+### Análise SAPS
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(df_pre$`SAPS 3 da admissão`))
+ggplot(data=df_pre, aes(x=`SAPS 3 da admissão`))+
+  geom_density(fill="blue")
+shapiro.test(df_pre$`SAPS 3 da admissão`)
+```
+
+#### Grupo controle
+```{r}
+as.data.frame(skim(df_npre$`SAPS 3 da admissão`))
+ggplot(data=df_npre, aes(x=`SAPS 3 da admissão`))+
+  geom_density(fill="blue")
+shapiro.test(df_npre$`SAPS 3 da admissão`)
+```
+
+#### Comparação SAPS 3
+```{r}
+ggplot(data=df_pret, aes(x=`SAPS 3 da admissão`, fill=Grupo))+
+  geom_density(alpha=0.2)
+wilcox.test(df_pre$`SAPS 3 da admissão`, df_npre$`SAPS 3 da admissão`)
+```
+
+#### Conclusão:
+#### - Ambos os grupos possuem distrbuição não paramétrica;
+#### - O grupo intervenção possui distribuição bimodal;
+#### - O grupo controle possui maior SAPS 3 na admissão, o resultado foi estatísticamente significativo, portanto, podemos concluir que o grupo controle possuía maior gravidade na admissão em UTI. Talvez porque parte desses pacientes já chegaram à UTI intubados.
+
+#### SAPS 3 grupo controle que não chegou à UTI intubado
+```{r}
+as.data.frame(skim(df_nnpre$`SAPS 3 da admissão`))
+ggplot(data=df_nnpre, aes(x=`SAPS 3 da admissão`))+
+  geom_density(fill="blue")
+shapiro.test(df_nnpre$`SAPS 3 da admissão`)
+```
+
+#### Comparação grupo CnAF/VNI vs grupo controle que não chegou intubado à UTI
+```{r}
+ggplot(data=df_prett, aes(x=`SAPS 3 da admissão`, fill=Grupo))+
+  geom_density(alpha=0.2)
+wilcox.test(df_pre$`SAPS 3 da admissão`, df_nnpre$`SAPS 3 da admissão`)
+```
+#### Agora podemos concluir que quando comparados apenas os paciente que não chegaram intubados à UTI, o grupo que foi tratado com CnAF/VNI possuia gravidade similar à dos pacientes do grupo controle.
+
+## Necessidade de intubação
+
+```{r}
+t1 <- select(df_pre, `IRpA que precisou de VM`, Grupo)
+ggplot(data=df_pre, aes(x=`IRpA que precisou de VM`, y=(..count..)*100/sum(..count..), fill=`IRpA que precisou de VM`)) +
+  geom_bar()
+t2 <- select(df_nnpre, `IRpA que precisou de VM`, Grupo)
+ggplot(data=df_nnpre, aes(x=`IRpA que precisou de VM`, y=(..count..)*100/sum(..count..), fill=`IRpA que precisou de VM`)) +
+  geom_bar()
+t3 <- rbind(t1, t2)
+chisq.test(t3$Grupo, t3$`IRpA que precisou de VM`)
 ```

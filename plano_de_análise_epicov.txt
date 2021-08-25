@@ -1,9 +1,9 @@
 - Definir dois data frames, um CnAF/VNI pr?-IOT outro CNAF/VNI p?s-IOT;
-- Idade(OK), sexo(OK), etinia, internacao hospitalar-inicio dos sintomas, internacao em UTI-inicio dos sintomas, SAPS, comorbidades, IMC(OK) -> Realizar avaliacoes para os data frames gerais e para cada grupo separadamente.
+- Idade(OK), sexo(OK), etinia, internacao hospitalar-inicio dos sintomas(OK), internacao em UTI-inicio dos sintomas(OK), SAPS(OK), comorbidades, IMC(OK) -> Realizar avaliacoes para os data frames gerais e para cada grupo separadamente.
 
 - CnAF/VNI pre-IOT:
 	- Dados gerais citados acima;
-	- Esses grupos s?o diferentes em alguma das caracteristicas citadas acima?
+	- Esses grupos sao diferentes em alguma das caracteristicas citadas acima?
 	- Ha diferenca na taxa de intubacao? (CnAF vs VNI vs CnAF+VNI)
 	- Ha diferenca no tempo ate intubacao?
 	- Ha diferenca no tempo de interna??o em UTI ou tempo de internacao hospitalar?
