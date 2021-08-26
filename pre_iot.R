@@ -9,4 +9,5 @@ df_pret["Grupo"]
 unique(df_pret[c("Grupo")])
 
 df_pret %>% group_by("Grupo") %>% wilcox.test(df_pret$Idade)
-#Análise de idade
+table(df_pre$`Teve falencia da VNI pre IOT?`)
+table(df_pre$`Teve falencia do CNAF pre IOT?`)

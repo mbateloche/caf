@@ -5,7 +5,7 @@
 	- Dados gerais citados acima;
 	- Esses grupos sao diferentes em alguma das caracteristicas citadas acima?
 	- Ha diferenca na taxa de intubacao? (CnAF vs VNI vs CnAF+VNI)
-	- Ha diferenca no tempo ate intubacao?
+	- Ha diferenca no tempo ate intubacao? -> Dado não disponível.
 	- Ha diferenca no tempo de interna??o em UTI ou tempo de internacao hospitalar?
 	- E possivel avaliar clusters de pacientes de acordo com suas respectivas UTI's?
 	- Ha algum modelo de regressao que prediz de forma satisfatoria a taxa de intubacao desses pacientes? (considerar modelos de regressao multipla apenas com covariaveis estatisticamente significativas)

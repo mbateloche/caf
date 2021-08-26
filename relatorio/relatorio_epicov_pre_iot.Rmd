@@ -2,19 +2,22 @@
 title: "epicov_pre_iot"
 author: "Matheus"
 date: "23/08/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Projeto EPICOV - CNAF/VNI
+# **Projeto EPICOV - CNAF/VNI**
 
 ```{r #Definindo os data frames, include=FALSE}
 library(tidyverse)
 library(readxl)
 library(skimr)
+options(digits = 3)
 df <- read_excel("../epicov_inicial.xlsx")
 ## Definindo o data frame apenas com paciente que usaram VNI e/ou CNAF pré-IOT
 df_pre <- filter(df, `Usou VNI pre IOT?` == "Yes" | `Usou CNAF pre IOT?` == "Yes")
@@ -29,29 +32,29 @@ df_pret <- rbind(df_pre, df_npre) # Data frame com todos os paciente com coluna 
 df_prett <- rbind(df_pre, df_nnpre) # Data frame com todos os paciente que não chegaram à UTI intubados com coluna "Grupo"
 ```
 
-## Análise descritiva/exploratória
+## **Análise descritiva/exploratória**
 
-### Comparação idade
+### **Comparação idade**
 
-#### Idade grupo CNAF/VNI
+#### **Idade grupo CNAF/VNI**
 ```{r #Análise exploratória - Idade}
 as.data.frame(skim(df_pre$Idade))
 ```
 
-#### Idade grupo controle
+#### **Idade grupo controle**
 ```{r}
 as.data.frame(skim(df_npre$Idade))
 ```
 
-#### Teste de normalidade
+#### **Teste de normalidade**
 ```{r}
 #Grupo Intervenção
 shapiro.test(df_pre$Idade)
 shapiro.test(df_npre$Idade)
 ```
-#### Concluímos que ambas as amostras possuem distribuição não-paramétrica.
+#### **Concluímos que ambas as amostras possuem distribuição não-paramétrica.**
 
-#### Comparação Idade
+#### **Comparação Idade**
 ```{r}
 ggplot(df_pret, aes(Idade, fill=Grupo)) +
   geom_density(alpha=0.2)
@@ -59,9 +62,9 @@ wilcox.test(df_pre$Idade, df_npre$Idade)
 ```
 #### Conclusão: Não há diferença entre ambos os grupos.
 
-### Comparação - Sexo
+### **Comparação - Sexo**
 
-#### Sexo - grupo intervenção
+#### **Sexo - grupo intervenção**
 
 ```{r}
 as.data.frame(skim(df_pre$Sexo))
@@ -71,7 +74,7 @@ ggplot(data=df_pre, aes(x=Sexo, y=(..count..)*100/sum(..count..), fill=Sexo))+
   geom_bar()
 ```
 
-#### Sexo- grupo controle
+#### **Sexo- grupo controle**
 
 ```{r}
 as.data.frame(skim(df_npre$Sexo))
@@ -80,7 +83,7 @@ prop.table(table(df_npre$Sexo))
 ggplot(data=df_npre, aes(x=Sexo, y=(..count..)*100/sum(..count..), fill=Sexo))+
   geom_bar()
 ```
-#### Comparação - Sexo
+#### **Comparação - Sexo**
 
 ```{r}
 t1 <- select(df_pre, Sexo, Grupo)
@@ -95,7 +98,7 @@ chisq.test(table(t3))
 
 ### Comparação IMC
 
-#### IMC - Grupo CnAF/VNI
+#### **IMC - Grupo CnAF/VNI**
 
 ```{r}
 as.data.frame(skim(df_pre$IMC))
@@ -103,14 +106,14 @@ ggplot(data=df_pre, aes(x=IMC))+
   geom_density()
 ```
 
-#### IMC - Grupo controle
+#### **IMC - Grupo controle**
 ```{r}
 as.data.frame(skim(df_npre$IMC))
 ggplot(data=df_npre, aes(x=IMC))+
   geom_density()
 ```
 
-#### Comparação
+#### **Comparação**
 ```{r}
 ggplot(data=df_pret, aes(x=IMC, fill=Grupo)) +
   geom_density(alpha=0.2)
@@ -119,11 +122,11 @@ shapiro.test(df_npre$IMC)
 wilcox.test(df_pre$IMC, df_npre$IMC)
 ```
 
-#### Ambos os grupos possuem distribuição não-paramétrica. Conclusão: Diferença estatísticamente significativa?!
+#### **Ambos os grupos possuem distribuição não-paramétrica. Conclusão: Diferença estatísticamente significativa?!**
 
-### Comparação início dos sintomas - internação hospiptalar
+### **Comparação início dos sintomas - internação hospiptalar**
 
-#### Grupo CnAF/VNI
+#### **Grupo CnAF/VNI**
 
 ```{r}
 as.data.frame(skim(df_pre$`Data do início dos sintomas`))
@@ -131,7 +134,7 @@ as.data.frame(skim(df_pre$`Data de admissão hospitalar no HC`))
 mean(difftime(df_pre$`Data de admissão hospitalar no HC`, df_pre$`Data do início dos sintomas`, units = "days"))
 ```
 
-#### Grupo controle
+#### **Grupo controle**
 ```{r}
 as.data.frame(skim(df_npre$`Data do início dos sintomas`))
 as.data.frame(skim(df_npre$`Data de admissão hospitalar no HC`))
@@ -139,9 +142,9 @@ mean(difftime(df_npre$`Data de admissão hospitalar no HC`, df_npre$`Data do in�
 ```
 
 
-### Início dos sintomas - Internação UTI
+### **Início dos sintomas - Internação UTI**
 
-#### Grupo CnAF/VNI
+#### **Grupo CnAF/VNI**
 
 ```{r}
 as.data.frame(skim(df_pre$`Data do início dos sintomas`))
@@ -156,9 +159,9 @@ as.data.frame(skim(df_npre$`Data de admissão UTI`))
 mean(difftime(df_npre$`Data de admissão UTI`, df_npre$`Data do início dos sintomas`, units = "days"))
 ```
 
-### Internação hospitalar - internação UTI
+### **Internação hospitalar - internação UTI**
 
-#### Grupo CnAF/VNI
+#### **Grupo CnAF/VNI**
 
 ```{r}
 as.data.frame(skim(df_pre$`Data de admissão hospitalar no HC`))
@@ -166,7 +169,7 @@ as.data.frame(skim(df_pre$`Data de admissão UTI`))
 mean(difftime(df_pre$`Data de admissão UTI`, df_pre$`Data de admissão hospitalar no HC`, units = "days"))
 ```
 
-#### Grupo controle
+#### **Grupo controle**
 
 ```{r}
 as.data.frame(skim(df_npre$`Data de admissão hospitalar no HC`))
@@ -174,9 +177,9 @@ as.data.frame(skim(df_npre$`Data de admissão UTI`))
 mean(difftime(df_npre$`Data de admissão UTI`, df_npre$`Data de admissão hospitalar no HC`, units = "days"))
 ```
 
-### Análise SAPS
+### **Análise SAPS**
 
-#### Grupo CnAF/VNI
+#### **Grupo CnAF/VNI**
 
 ```{r}
 as.data.frame(skim(df_pre$`SAPS 3 da admissão`))
@@ -185,7 +188,7 @@ ggplot(data=df_pre, aes(x=`SAPS 3 da admissão`))+
 shapiro.test(df_pre$`SAPS 3 da admissão`)
 ```
 
-#### Grupo controle
+#### **Grupo controle**
 ```{r}
 as.data.frame(skim(df_npre$`SAPS 3 da admissão`))
 ggplot(data=df_npre, aes(x=`SAPS 3 da admissão`))+
@@ -193,19 +196,19 @@ ggplot(data=df_npre, aes(x=`SAPS 3 da admissão`))+
 shapiro.test(df_npre$`SAPS 3 da admissão`)
 ```
 
-#### Comparação SAPS 3
+#### **Comparação SAPS 3**
 ```{r}
 ggplot(data=df_pret, aes(x=`SAPS 3 da admissão`, fill=Grupo))+
   geom_density(alpha=0.2)
 wilcox.test(df_pre$`SAPS 3 da admissão`, df_npre$`SAPS 3 da admissão`)
 ```
 
-#### Conclusão:
+#### **Conclusão:**
 #### - Ambos os grupos possuem distrbuição não paramétrica;
 #### - O grupo intervenção possui distribuição bimodal;
 #### - O grupo controle possui maior SAPS 3 na admissão, o resultado foi estatísticamente significativo, portanto, podemos concluir que o grupo controle possuía maior gravidade na admissão em UTI. Talvez porque parte desses pacientes já chegaram à UTI intubados.
 
-#### SAPS 3 grupo controle que não chegou à UTI intubado
+#### **SAPS 3 grupo controle que não chegou intubado à UTI**
 ```{r}
 as.data.frame(skim(df_nnpre$`SAPS 3 da admissão`))
 ggplot(data=df_nnpre, aes(x=`SAPS 3 da admissão`))+
@@ -213,7 +216,7 @@ ggplot(data=df_nnpre, aes(x=`SAPS 3 da admissão`))+
 shapiro.test(df_nnpre$`SAPS 3 da admissão`)
 ```
 
-#### Comparação grupo CnAF/VNI vs grupo controle que não chegou intubado à UTI
+#### **Comparação grupo CnAF/VNI vs grupo controle que não chegou intubado à UTI**
 ```{r}
 ggplot(data=df_prett, aes(x=`SAPS 3 da admissão`, fill=Grupo))+
   geom_density(alpha=0.2)
@@ -221,15 +224,105 @@ wilcox.test(df_pre$`SAPS 3 da admissão`, df_nnpre$`SAPS 3 da admissão`)
 ```
 #### Agora podemos concluir que quando comparados apenas os paciente que não chegaram intubados à UTI, o grupo que foi tratado com CnAF/VNI possuia gravidade similar à dos pacientes do grupo controle.
 
-## Necessidade de intubação
+## **Necessidade de intubação**
 
+#### **Grupo CnAF/VNI**
 ```{r}
+table(df_pre$`Teve falencia da VNI pre IOT?`)
+table(df_pre$`Teve falencia do CNAF pre IOT?`)
 t1 <- select(df_pre, `IRpA que precisou de VM`, Grupo)
 ggplot(data=df_pre, aes(x=`IRpA que precisou de VM`, y=(..count..)*100/sum(..count..), fill=`IRpA que precisou de VM`)) +
-  geom_bar()
+  geom_bar() +
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Necessidade de intubação (Grupo CnAF/VNI)")
+```
+
+#### **Grupo Controle**
+
+```{r}
 t2 <- select(df_nnpre, `IRpA que precisou de VM`, Grupo)
 ggplot(data=df_nnpre, aes(x=`IRpA que precisou de VM`, y=(..count..)*100/sum(..count..), fill=`IRpA que precisou de VM`)) +
-  geom_bar()
+  geom_bar()+
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Necessidade de intubação (Grupo controle")
+```
+
+#### **Comparação - Teste chi-quadrado**
+```{r}
 t3 <- rbind(t1, t2)
 chisq.test(t3$Grupo, t3$`IRpA que precisou de VM`)
+```
+
+
+### **Desfecho UTI**
+
+#### **Grupo CnAF/VNI**
+
+```{r}
+as.data.frame(table(df_pre$`Desfecho na UTI`))
+as.data.frame(prop.table(table(df_pre$`Desfecho na UTI`)))
+ggplot(data=df_pre, aes(x=`Desfecho na UTI`, y=(..count..)*100/sum(..count..), fill=`Desfecho na UTI`)) +
+  geom_bar() +
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Desfecho UTI (CnAF/VNI)") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### **Grupo controle**
+
+```{r}
+as.data.frame(table(df_nnpre$`Desfecho na UTI`))
+as.data.frame(prop.table(table(df_nnpre$`Desfecho na UTI`)))
+ggplot(data=df_nnpre, aes(x=`Desfecho na UTI`, y=(..count..)*100/sum(..count..), fill=`Desfecho na UTI`)) +
+  geom_bar()+
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Desfecho UTI (Controle)") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### **Comparação - Teste chi-quadrado**
+```{r}
+t1 <- select(df_pre, `Desfecho na UTI`, Grupo)
+  
+t2 <- select(df_nnpre, `Desfecho na UTI`, Grupo)
+
+t3 <- rbind(t1, t2)
+chisq.test(t3$Grupo, t3$`Desfecho na UTI`)
+```
+
+#### Consequente à maior necessidade de intubação, observamos maior número de óbitos no grupo CnAF/VNI.
+
+### **Desfecho hospitalar**
+
+#### **Grupo CnAF/VNI**
+```{r}
+as.data.frame(table(df_pre$`Desfecho Hospitalar`))
+as.data.frame(prop.table(table(df_pre$`Desfecho Hospitalar`)))
+ggplot(data=df_pre, aes(x=`Desfecho Hospitalar`, y=(..count..)*100/sum(..count..), fill=`Desfecho Hospitalar`)) +
+  geom_bar() +
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Desfecho Hospitalar (CnAF/VNI)") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### **Grupo controle**
+
+```{r}
+as.data.frame(table(df_nnpre$`Desfecho Hospitalar`))
+as.data.frame(prop.table(table(df_nnpre$`Desfecho Hospitalar`)))
+ggplot(data=df_nnpre, aes(x=`Desfecho Hospitalar`, y=(..count..)*100/sum(..count..), fill=`Desfecho Hospitalar`)) +
+  geom_bar()+
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Desfecho Hospitalar (Controle)") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### **Comparação**
+```{r}
+t1 <- select(df_pre, `Desfecho Hospitalar`, Grupo)
+  
+t2 <- select(df_nnpre, `Desfecho Hospitalar`, Grupo)
+
+t3 <- rbind(t1, t2)
+chisq.test(t3$Grupo, t3$`Desfecho Hospitalar`)
 ```
