@@ -1,7 +1,0 @@
-"0","ggplot(data=df, aes())+
-  geom_line(aes(x=df$`Escala da Glasgow na primeira hora da admissão na UTI`), fill=""blue"")
-"
-"2","Ignoring unknown parameters: fill"
-"2","Erro: geom_line requires the following missing aesthetics: y
-[90mRun `rlang::last_error()` to see where the error occurred.[39m
-"

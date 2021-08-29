@@ -1,0 +1,226 @@
+---
+title: 'Análise descritiva: Projeto CnAF/VNI'
+author: "Matheus"
+date: "28/08/2021"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# **Projeto EPICOV - CNAF/VNI**
+
+```{r include=FALSE}
+library(tidyverse)
+library(readxl)
+library(skimr)
+library(tinytex)
+options(digits = 3)
+df <- read_excel("../epicov_inicial.xlsx")
+## Definindo o data frame apenas com paciente que usaram VNI e/ou CNAF pré-IOT
+intervencao_pre <- filter(df, `Usou VNI pre IOT?` == "Yes" | `Usou CNAF pre IOT?` == "Yes")
+
+## Data frame controle, geral, inclui todos os pacientes que não usaram CnAF/VNI
+controle_pre_geral <- filter(df, `Usou VNI pre IOT?` == "No" & `Usou CNAF pre IOT?` == "No")
+
+## Data frame controle, apenas paciente que chegaram em respiração espontânea ao HC
+controle_pre_re <- filter(df, `Usou VNI pre IOT?` == "No" & `Usou CNAF pre IOT?` == "No" & `Suporte de O2 na chegada na UTI` != "VM")
+
+## Data frames com coluna de grupos
+intervencao_pre$Grupo <- c("Int")
+controle_pre_geral$Grupo <- c("Controle")
+controle_pre_re$Grupo <- c("Controle") # Grupo controle que não chegou intubado à UTI
+df_pre_geral <- rbind(intervencao_pre, controle_pre_geral) # Data frame com todos os paciente com coluna "Grupo"
+df_re <- rbind(intervencao_pre, controle_pre_re) # Data frame com todos os paciente que não chegaram à UTI intubados com coluna "Grupo"
+```
+
+## **Análise descritiva/exploratória**
+
+### **Variável: idade**
+
+### Grupo CNAF/VNI
+
+#### Descrição
+```{r}
+as.data.frame(skim(intervencao_pre$Idade))
+ggplot (data=intervencao_pre, aes(x=Idade)) +
+  geom_density(fill='lightblue', alpha=0.2)
+shapiro.test(intervencao_pre$Idade)
+```
+
+### Grupo controle
+
+#### Descrição
+```{r}
+as.data.frame(skim(controle_pre_re$Idade))
+ggplot (data=controle_pre_re, aes(x=Idade)) +
+  geom_density(fill='pink', alpha=0.2)
+shapiro.test(controle_pre_geral$Idade)
+```
+
+#### Concluímos que ambas as amostras possuem distribuição não-paramétrica.
+
+
+
+#### Comparação: Idade
+```{r}
+ggplot(data=df_re, aes(Idade, fill=Grupo)) +
+  geom_density(alpha=0.2)
+wilcox.test(intervencao_pre$Idade, controle_pre_re$Idade)
+```
+
+#### Conclusão: Não há diferença entre ambos os grupos.
+
+
+
+### **Variável: Sexo**
+
+#### Intervenção
+
+```{r}
+as.data.frame(skim(intervencao_pre$Sexo))
+table(intervencao_pre$Sexo)
+prop.table(table(intervencao_pre$Sexo))
+ggplot(data=intervencao_pre, aes(x=Sexo, y=(..count..)*100/sum(..count..), fill=Sexo))+
+  geom_bar() +
+  ylab("Porcentagem de pacientes (%)")
+```
+
+#### **Grupo controle**
+
+```{r}
+as.data.frame(skim(controle_pre_re$Sexo))
+table(controle_pre_re$Sexo)
+prop.table(table(controle_pre_re$Sexo))
+ggplot(data=controle_pre_re, aes(x=Sexo, y=(..count..)*100/sum(..count..), fill=Sexo))+
+  geom_bar()
+```
+
+#### **Comparação**
+
+```{r}
+t1 <- select(intervencao_pre, Sexo, Grupo)
+t1
+t2 <- select(controle_pre_re, Sexo, Grupo)
+t2
+t3 <- rbind(t1, t2)
+chisq.test(table(t3))
+```
+
+#### Não observamos diferença estatísticamente significativa entre ambos os grupos.
+
+
+
+### **Variável: IMC**
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(intervencao_pre$IMC))
+shapiro.test(intervencao_pre$IMC)
+ggplot(data=intervencao_pre, aes(x=IMC))+
+  geom_density(fill='lightblue', alpha=0.2)
+```
+
+#### Grupo controle
+```{r}
+as.data.frame(skim(controle_pre_re$IMC))
+shapiro.test(controle_pre_geral$IMC)
+ggplot(data=controle_pre_re, aes(x=IMC))+
+  geom_density(fill='pink', alpha=0.2)
+```
+
+#### Comparação
+```{r}
+ggplot(data=df_re, aes(x=IMC, fill=Grupo)) +
+  geom_density(alpha=0.2)
+
+wilcox.test(intervencao_pre$IMC, controle_pre_geral$IMC)
+```
+
+#### Conclusão: Ambos os grupos possuem distribuição não paramétrica, há uma diferença discreta no IMC dos dois grupos, porém estatísticamente significativa.
+
+
+
+### **Início dos sintomas - internação hospiptalar**
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(intervencao_pre$`Data do início dos sintomas`))
+as.data.frame(skim(intervencao_pre$`Data de admissão hospitalar no HC`))
+mean(difftime(intervencao_pre$`Data de admissão hospitalar no HC`, intervencao_pre$`Data do início dos sintomas`, units = "days"))
+```
+
+#### Grupo controle
+```{r}
+as.data.frame(skim(controle_pre_re$`Data do início dos sintomas`))
+as.data.frame(skim(controle_pre_re$`Data de admissão hospitalar no HC`))
+mean(difftime(controle_pre_re$`Data de admissão hospitalar no HC`, controle_pre_re$`Data do início dos sintomas`, units = "days"))
+```
+
+
+### **Início dos sintomas - Internação UTI**
+
+#### **Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(intervencao_pre$`Data do início dos sintomas`))
+as.data.frame(skim(intervencao_pre$`Data de admissão UTI`))
+mean(difftime(intervencao_pre$`Data de admissão UTI`, intervencao_pre$`Data do início dos sintomas`, units = "days"))
+```
+
+#### Grupo controle
+```{r}
+as.data.frame(skim(controle_pre_re$`Data do início dos sintomas`))
+as.data.frame(skim(controle_pre_re$`Data de admissão UTI`))
+mean(difftime(controle_pre_re$`Data de admissão UTI`, controle_pre_re$`Data do início dos sintomas`, units = "days"))
+```
+
+### **Internação hospitalar - internação UTI**
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(intervencao_pre$`Data de admissão hospitalar no HC`))
+as.data.frame(skim(intervencao_pre$`Data de admissão UTI`))
+mean(difftime(intervencao_pre$`Data de admissão UTI`, intervencao_pre$`Data de admissão hospitalar no HC`, units = "days"))
+```
+
+#### Grupo controle
+
+```{r}
+as.data.frame(skim(controle_pre_re$`Data de admissão hospitalar no HC`))
+as.data.frame(skim(controle_pre_re$`Data de admissão UTI`))
+mean(difftime(controle_pre_re$`Data de admissão UTI`, controle_pre_re$`Data de admissão hospitalar no HC`, units = "days"))
+```
+
+### **Análise SAPS**
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(skim(intervencao_pre$`SAPS 3 da admissão`))
+ggplot(data=intervencao_pre, aes(x=`SAPS 3 da admissão`))+
+  geom_density(fill="blue", alpha=0.2)
+shapiro.test(intervencao_pre$`SAPS 3 da admissão`)
+```
+
+#### Grupo Controle
+```{r}
+as.data.frame(skim(controle_pre_re$`SAPS 3 da admissão`))
+ggplot(data=controle_pre_re, aes(x=`SAPS 3 da admissão`))+
+  geom_density(fill="pink", alpha=0.2)
+shapiro.test(controle_pre_re$`SAPS 3 da admissão`)
+```
+
+#### Comparação
+```{r}
+ggplot(data=df_re, aes(x=`SAPS 3 da admissão`, fill=Grupo))+
+  geom_density(alpha=0.2)
+wilcox.test(intervencao_pre$`SAPS 3 da admissão`, controle_pre_re$`SAPS 3 da admissão`)
+```
+
+#### Conclusão: Ambos os grupos possuem distribuição não paramétrica com SAPS 3 semelhantes.
+

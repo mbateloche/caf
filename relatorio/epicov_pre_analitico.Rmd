@@ -1,0 +1,153 @@
+---
+title: "Análise comparativa: Projeto CnAF/VNI"
+author: "Matheus"
+date: "28/08/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r #Definindo os data frames, include=FALSE}
+library(tidyverse)
+library(readxl)
+library(skimr)
+library(tinytex)
+options(digits = 3)
+df <- read_excel("../epicov_inicial.xlsx")
+## Definindo o data frame apenas com paciente que usaram VNI e/ou CNAF pré-IOT
+intervencao_pre <- filter(df, `Usou VNI pre IOT?` == "Yes" | `Usou CNAF pre IOT?` == "Yes")
+
+## Data frame controle, geral, inclui todos os pacientes que não usaram CnAF/VNI
+controle_pre_geral <- filter(df, `Usou VNI pre IOT?` == "No" & `Usou CNAF pre IOT?` == "No")
+
+## Data frame controle, apenas paciente que chegaram em respiração espontânea ao HC
+controle_pre_re <- filter(df, `Usou VNI pre IOT?` == "No" & `Usou CNAF pre IOT?` == "No" & `Suporte de O2 na chegada na UTI` != "VM")
+
+## Data frames com coluna de grupos
+intervencao_pre$Grupo <- c("Int")
+controle_pre_geral$Grupo <- c("Controle")
+controle_pre_re$Grupo <- c("Controle") # Grupo controle que não chegou intubado à UTI
+df_pre_geral <- rbind(intervencao_pre, controle_pre_geral) # Data frame com todos os paciente com coluna "Grupo"
+df_re <- rbind(intervencao_pre, controle_pre_re) # Data frame com todos os paciente que não chegaram à UTI intubados com coluna "Grupo"
+```
+
+## **Necessidade de intubação**
+
+#### Grupo CnAF/VNI
+##### Pacientes que usaram VNI
+```{r}
+as.data.frame(table(intervencao_pre$`Teve falencia da VNI pre IOT?`))
+as.data.frame(prop.table(table(intervencao_pre$`Teve falencia da VNI pre IOT?`)))
+```
+
+##### Pacientes que usaram CnAF
+```{r}
+as.data.frame(table(intervencao_pre$`Teve falencia do CNAF pre IOT?`))
+as.data.frame(prop.table(table(intervencao_pre$`Teve falencia do CNAF pre IOT?`)))
+```
+
+##### CnAF+VNI - Necessidade de intubação
+```{r}
+t1 <- select(intervencao_pre, `IRpA que precisou de VM`, Grupo)
+ggplot(data=intervencao_pre, aes(x=`IRpA que precisou de VM`, y=(..count..)*100/sum(..count..), fill=`IRpA que precisou de VM`)) +
+  geom_bar() +
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Necessidade de intubação (Grupo CnAF/VNI)")
+```
+
+#### Grupo Controle
+
+```{r}
+t2 <- select(controle_pre_re, `IRpA que precisou de VM`, Grupo)
+ggplot(data=controle_pre_re, aes(x=`IRpA que precisou de VM`, y=(..count..)*100/sum(..count..), fill=`IRpA que precisou de VM`)) +
+  geom_bar()+
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Necessidade de intubação (Grupo controle")
+```
+
+#### Comparação
+```{r}
+t3 <- rbind(t1, t2)
+chisq.test(t3$Grupo, t3$`IRpA que precisou de VM`)
+```
+#### Conclusão: Houve maior necessidade de intubações nos pacientes que fizeram uso de CnAF/VNI.
+
+
+### **Desfecho UTI**
+
+#### Grupo CnAF/VNI
+
+```{r}
+as.data.frame(table(intervencao_pre$`Desfecho na UTI`))
+as.data.frame(prop.table(table(intervencao_pre$`Desfecho na UTI`)))
+ggplot(data=intervencao_pre, aes(x=`Desfecho na UTI`, y=(..count..)*100/sum(..count..), fill=`Desfecho na UTI`)) +
+  geom_bar() +
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Desfecho UTI (CnAF/VNI)") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### Grupo controle
+
+```{r}
+as.data.frame(table(controle_pre_re$`Desfecho na UTI`))
+as.data.frame(prop.table(table(controle_pre_re$`Desfecho na UTI`)))
+ggplot(data=controle_pre_re, aes(x=`Desfecho na UTI`, y=(..count..)*100/sum(..count..), fill=`Desfecho na UTI`)) +
+  geom_bar()+
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Desfecho UTI (Controle)") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### Comparação
+
+```{r}
+t1 <- select(intervencao_pre, `Desfecho na UTI`, Grupo)
+  
+t2 <- select(controle_pre_re, `Desfecho na UTI`, Grupo)
+
+t3 <- rbind(t1, t2)
+chisq.test(t3$Grupo, t3$`Desfecho na UTI`)
+```
+
+#### Consequente à maior necessidade de intubação, observamos maior número de óbitos no grupo CnAF/VNI, com importante diferença estatísticamente significativa.
+
+
+### **Desfecho hospitalar**
+
+#### Grupo CnAF/VNI
+```{r}
+as.data.frame(table(intervencao_pre$`Desfecho Hospitalar`))
+as.data.frame(prop.table(table(intervencao_pre$`Desfecho Hospitalar`)))
+ggplot(data=intervencao_pre, aes(x=`Desfecho Hospitalar`, y=(..count..)*100/sum(..count..), fill=`Desfecho Hospitalar`)) +
+  geom_bar() +
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Desfecho Hospitalar (CnAF/VNI)") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### Grupo controle
+
+```{r}
+as.data.frame(table(controle_pre_re$`Desfecho Hospitalar`))
+as.data.frame(prop.table(table(controle_pre_re$`Desfecho Hospitalar`)))
+ggplot(data=controle_pre_re, aes(x=`Desfecho Hospitalar`, y=(..count..)*100/sum(..count..), fill=`Desfecho Hospitalar`)) +
+  geom_bar()+
+  ylab("Porcentagem de pacientes (%)") +
+  xlab("Desfecho Hospitalar (Controle)") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+#### Comparação
+```{r}
+t1 <- select(intervencao_pre, `Desfecho Hospitalar`, Grupo)
+  
+t2 <- select(controle_pre_re, `Desfecho Hospitalar`, Grupo)
+
+t3 <- rbind(t1, t2)
+chisq.test(t3$Grupo, t3$`Desfecho Hospitalar`)
+```
+
+#### Mais uma vez, observamos maior núero de óbitos nos paciente do grupo CnAF/CNI, comparados ao grupo controle, com p=0.00005.
